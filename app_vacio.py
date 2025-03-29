@@ -3,6 +3,8 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 from io import BytesIO
+import requests
+
 
 # Cargar los datos
 url = "https://github.com/cdaniellopez8/financiero/blob/master/Base_Financiero.xlsx"
