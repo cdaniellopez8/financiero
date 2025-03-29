@@ -16,15 +16,14 @@ if response.status_code == 200:
 else:
     st.error("No se pudo descargar el archivo. Verifica la URL.")
 
+
 # Sidebar para el filtro de bancos
 st.sidebar.header('Bancos')
 bancos_disponibles = finances_df['Banco'].unique()
-
-banco_seleccionado = st.sidebar.selectbox("Selecciona el banco", bancos_disponibles)
-
+banco_seleccionado = st.sidebar.selectbox('Selecciona el banco',bancos_disponibles)
 
 # Filtrar los datos según el banco seleccionado y crear una copia para evitar el SettingWithCopyWarning
-finances_filtrado = finances_df[finances_df['Banco'] == banco_seleccionado].copy()
+finances_filtrado = finances_df[finances_df['Banco']==banco_seleccionado].copy()
 
 # Títulos y encabezado principal
 st.title("Dashboard Financiero")
@@ -34,9 +33,7 @@ st.write(f"Visualización de movimientos financieros para {banco_seleccionado}")
 total_recibido = finances_filtrado[finances_filtrado['Tipo']=='Recibido']['Valor de movimiento'].sum()
 total_hecho = - finances_filtrado[finances_filtrado['Tipo']=='Pagado']['Valor de movimiento'].sum()
 impuesto = total_recibido*0.15
-utilidad = total_recibido - impuesto - total_hecho
-
-
+utilidad = total_recibido - total_hecho - impuesto
 
 # Mostrar los totales en formato de tarjetas con un tamaño de texto más pequeño
 col1, col2, col3, col4 = st.columns(4)
@@ -49,7 +46,6 @@ with col3:
     st.markdown(f"<h5 style='font-size:14px;'>Impuesto</h5><h3 style='font-size:20px;'>${impuesto:,.2f}</h3>", unsafe_allow_html=True)
 with col4:
     st.markdown(f"<h5 style='font-size:14px;'>Utilidad</h5><h3 style='font-size:20px;'>${utilidad:,.2f}</h3>", unsafe_allow_html=True)
-
 
 # Convertir la columna de fechas y agregar el mes de forma segura
 finances_filtrado.loc[:, 'Fecha de movimiento'] = pd.to_datetime(finances_filtrado['Fecha de movimiento'])
@@ -64,7 +60,7 @@ meses_ingles_a_espanol = {
 finances_filtrado.loc[:,'Mes'] = finances_filtrado['Mes'].map(meses_ingles_a_espanol)
 
 # Agrupar los datos por mes y calcular la utilidad
-utilidad_mensual = finances_filtrado.groupby(['Mes', 'Tipo'])['Valor de movimiento'].sum().unstack(fill_value=0)
+utilidad_mensual = finances_filtrado.groupby(['Mes','Tipo'])['Valor de movimiento'].sum().unstack(fill_value=0)
 utilidad_mensual['Impuesto'] = utilidad_mensual['Recibido']*0.15
 utilidad_mensual['Utilidad'] = utilidad_mensual['Recibido'] + utilidad_mensual['Pagado'] - utilidad_mensual['Impuesto']
 
@@ -82,15 +78,13 @@ fig = go.Figure(go.Waterfall(
     name="Utilidad por Mes",
     orientation="v",
     measure=["relative"] * len(utilidad_mensual) + ["total"],
-    x = list(utilidad_mensual.index) + ['Total'],
+    x= list(utilidad_mensual.index)+['Total'],
     text=[f"${val/1e6:.1f} mill." for val in utilidad_mensual.values] + [f"${utilidad_total/1e6:.1f} mill."],
-    y = list(utilidad_mensual.values) + [utilidad_total],
+    y= list(utilidad_mensual.values) + [utilidad_total],
     decreasing={"marker": {"color": "orange"}},
     increasing={"marker": {"color": "green"}},
     totals={"marker": {"color": "blue"}}
 ))
-
-
 
 fig.update_layout(
     title=f"Utilidad por Mes del {banco_seleccionado}",
@@ -106,7 +100,7 @@ fig.update_layout(
 st.plotly_chart(fig)
 
 # La utilidad es la suma de 'Recibido' menos 'Pagado' - 'Impuesto' para cada ciudad
-utilidad_ciudad = finances_filtrado.groupby(['Ciudad', 'Tipo'])['Valor de movimiento'].sum().unstack(fill_value=0)
+utilidad_ciudad = finances_filtrado.groupby(['Ciudad','Tipo'])['Valor de movimiento'].sum().unstack(fill_value=0)
 utilidad_ciudad['Impuesto'] = utilidad_ciudad['Recibido']*0.15
 utilidad_ciudad['Utilidad'] = utilidad_ciudad['Recibido'] + utilidad_ciudad['Pagado'] - utilidad_ciudad['Impuesto']
 
@@ -114,8 +108,8 @@ utilidad_ciudad['Utilidad'] = utilidad_ciudad['Recibido'] + utilidad_ciudad['Pag
 colores = ['green' if val > 0 else 'orange' for val in utilidad_ciudad['Utilidad']]
 
 fig2 = go.Figure(go.Bar(
-    x = utilidad_ciudad,
-    y = utilidad_ciudad.index,
+    x= utilidad_ciudad['Utilidad'],
+    y= utilidad_ciudad.index,
     orientation='h',
     text=[f"${val/1e6:.1f} mill." for val in utilidad_ciudad['Utilidad']],
     marker_color=colores,  # Aplicar los colores según la condición
