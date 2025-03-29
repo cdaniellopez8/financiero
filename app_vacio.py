@@ -13,7 +13,6 @@ response = requests.get(url)
 if response.status_code == 200:
     file_path = BytesIO(response.content)
     finances_df = pd.read_excel(file_path, sheet_name='Finanzas', engine="openpyxl")
-    st.write(finances_df.head())  # Mostrar datos en Streamlit
 else:
     st.error("No se pudo descargar el archivo. Verifica la URL.")
 
