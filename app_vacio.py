@@ -5,12 +5,17 @@ import plotly.express as px
 from io import BytesIO
 import requests
 
+# URL corregida con raw
+url = "https://raw.githubusercontent.com/cdaniellopez8/financiero/master/Base_Financiero.xlsx"
 
-# Cargar los datos
-url = "https://github.com/cdaniellopez8/financiero/blob/master/Base_Financiero.xlsx"
+# Descargar el archivo
 response = requests.get(url)
-file_path = BytesIO(response.content)
-finances_df = pd.read_excel(file_path, sheet_name='Finanzas')
+if response.status_code == 200:
+    file_path = BytesIO(response.content)
+    finances_df = pd.read_excel(file_path, sheet_name='Finanzas', engine="openpyxl")
+    st.write(finances_df.head())  # Mostrar datos en Streamlit
+else:
+    st.error("No se pudo descargar el archivo. Verifica la URL.")
 
 # Sidebar para el filtro de bancos
 st.sidebar.header('Bancos')
