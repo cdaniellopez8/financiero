@@ -7,12 +7,12 @@ import requests
 
 st.set_page_config(
     page_title="Dashboard Financiero",
-    page_icon="🪙", 
+    page_icon="💵", 
     layout="wide"
 )
 
 #💰
-#💵
+#🪙
 
 # URL corregida con raw
 url = "https://raw.githubusercontent.com/cdaniellopez8/financiero/master/Base_Financiero.xlsx"
